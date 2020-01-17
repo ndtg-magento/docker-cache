@@ -52,6 +52,12 @@ RUN apk del .phpize-deps \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 COPY ./docker/magento/auth.json /root/.composer/
+COPY ./docker/aliases.sh /etc/profile.d/aliases.sh
+COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
+COPY ./docker/magento-entrypoint /usr/local/bin/magento-entrypoint
+COPY ./docker/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
+
+RUN chmod u+x /usr/local/bin/magento-entrypoint
 
 # Save Cache
 RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=${MAGENTO_VERSION} ${DOCUMENT_ROOT}/cache
