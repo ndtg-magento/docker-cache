@@ -7,6 +7,7 @@ ENV MAGENTO_VERSION=2.3.3
 ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
 # Install package
+
 RUN apk add --no-cache freetype \
     libpng \
     libjpeg \
@@ -18,7 +19,8 @@ RUN apk add --no-cache freetype \
     libpng-dev \
     libxslt-dev \
     freetype-dev \
-    libjpeg-turbo-dev
+    libjpeg-turbo-dev \
+    vim
 
 RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS
 
@@ -40,6 +42,12 @@ RUN docker-php-ext-install \
     xsl \
     sockets
 
+RUN pecl install \
+    redis
+
+RUN docker-php-ext-enable \
+    redis
+
 RUN apk del .phpize-deps \
     && apk del --no-cache \
        libpng-dev \
@@ -52,9 +60,30 @@ RUN apk del .phpize-deps \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 COPY ./docker/magento/auth.json /root/.composer/
+COPY ./docker/aliases.sh /etc/profile.d/aliases.sh
+COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
+COPY ./docker/magento-entrypoint /usr/local/bin/magento-entrypoint
+COPY ./docker/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
+
+RUN chmod u+x /usr/local/bin/magento-entrypoint
 
 # Save Cache
 RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=${MAGENTO_VERSION} ${DOCUMENT_ROOT}/cache
-
 RUN rm -rf ${DOCUMENT_ROOT}/cache
+
+WORKDIR ${DOCUMENT_ROOT}
+
+# Create a user group 'xyzgroup'
+RUN addgroup -S magento
+
+# Create a user 'appuser' under 'xyzgroup'
+RUN adduser -SD magento magento
+
+COPY ./docker/rootfs /rootfs
+
+RUN chmod u+x /rootfs/*
+
+RUN chown -R magento:magento ${DOCUMENT_ROOT}/
+
+RUN ln -s ${DOCUMENT_ROOT}/bin/magento /usr/local/bin/magento
 
