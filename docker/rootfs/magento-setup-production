@@ -4,14 +4,14 @@ set -e
 setup_static_content() {
     minify_static_file
 
+    echo "${DOCUMENT_ROOT}/bin/magento setup:di:compile --no-ansi"
+    "${DOCUMENT_ROOT}"/bin/magento setup:di:compile --no-ansi
+
     echo "${DOCUMENT_ROOT}/bin/magento setup:static-content:deploy en_US"
     "${DOCUMENT_ROOT}"/bin/magento setup:static-content:deploy en_US
 
     echo "${DOCUMENT_ROOT}/bin/magento setup:static-content:deploy en_AU"
     "${DOCUMENT_ROOT}"/bin/magento setup:static-content:deploy en_AU
-
-    echo "${DOCUMENT_ROOT}/bin/magento setup:di:compile --no-ansi"
-    "${DOCUMENT_ROOT}"/bin/magento setup:di:compile --no-ansi
 }
 
 minify_static_file() {
