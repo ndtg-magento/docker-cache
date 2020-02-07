@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
 
-. /rootfs/magento-setup-production
-. /rootfs/magento-crontab-installer
-. /rootfs/magento-sampledata-installer
+. /rootfs/magento:setup:production
+. /rootfs/magento:setup:sampledata
+. /rootfs/magento:setup:crontab
 
 install_new_magento() {
     HOST_DOMAIN="host.docker.internal"

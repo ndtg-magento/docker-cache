@@ -40,6 +40,9 @@ minify_static_file() {
 }
 
 production_permission() {
+    echo "chown -R magento:magento ${DOCUMENT_ROOT}/var"
+    chown -R magento:magento "${DOCUMENT_ROOT}"/var
+
     echo "find ${DOCUMENT_ROOT}/app/code ${DOCUMENT_ROOT}/var/view_preprocessed ${DOCUMENT_ROOT}/vendor \
         ${DOCUMENT_ROOT}/pub/static ${DOCUMENT_ROOT}/app/etc ${DOCUMENT_ROOT}/generated/code  \
         ${DOCUMENT_ROOT}/generated/metadata \( -type f -or -type d \) -exec chmod g-w {} + \
