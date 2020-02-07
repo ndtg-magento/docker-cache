@@ -33,6 +33,22 @@ install_new_magento() {
         MAGENTO_ADMIN_USER="admin"
     fi
 
+    if [ -z "${MAGENTO_ADMIN_PWD}" ]; then
+        MAGENTO_ADMIN_PWD="admin123"
+    fi
+
+    if [ -z "${MAGENTO_ADMIN_EMAIL}" ]; then
+        MAGENTO_ADMIN_EMAIL="admin@example.com"
+    fi
+
+    if [ -z "${MAGENTO_ADMIN_FIRST_NAME}" ]; then
+        MAGENTO_ADMIN_FIRST_NAME="Admin"
+    fi
+
+    if [ -z "${MAGENTO_ADMIN_LAST_NAME}" ]; then
+        MAGENTO_ADMIN_LAST_NAME="User"
+    fi
+
     until nc -z -v -w30 ${MAGENTO_DATABASE_HOST} ${MAGENTO_DATABASE_PORT}
     do
         echo "Waiting for database connection..."
@@ -43,13 +59,13 @@ install_new_magento() {
     echo "Installing new magento..."
     echo "${DOCUMENT_ROOT}/bin/magento setup:install --base-url=${MAGENTO_BASE_URL} \
         --db-host=${MAGENTO_DATABASE_HOST}:${MAGENTO_DATABASE_PORT} --db-name="${MAGENTO_DATABASE_DB}" \
-        --admin-firstname=Admin --admin-lastname=User --admin-email=admin@example.com \
+        --admin-firstname=${MAGENTO_ADMIN_FIRST_NAME} --admin-lastname=${MAGENTO_ADMIN_LAST_NAME} --admin-email=${MAGENTO_ADMIN_EMAIL} \
         --admin-user=${MAGENTO_ADMIN_USER} --admin-password="${MAGENTO_ADMIN_PWD}" \
         --db-user=${MAGENTO_DATABASE_USER} --db-password="${MAGENTO_DATABASE_PWD}" \
         --language=en_US --currency=USD --timezone=America/Chicago --use-rewrites=1"
     "${DOCUMENT_ROOT}"/bin/magento setup:install --base-url=${MAGENTO_BASE_URL} \
         --db-host=${MAGENTO_DATABASE_HOST}:${MAGENTO_DATABASE_PORT} --db-name="${MAGENTO_DATABASE_DB}" \
-        --admin-firstname=Admin --admin-lastname=User --admin-email=admin@sstechvn.com \
+        --admin-firstname=${MAGENTO_ADMIN_FIRST_NAME} --admin-lastname=${MAGENTO_ADMIN_LAST_NAME} --admin-email=${MAGENTO_ADMIN_EMAIL} \
         --admin-user=${MAGENTO_ADMIN_USER} --admin-password="${MAGENTO_ADMIN_PWD}" \
         --db-user=${MAGENTO_DATABASE_USER} --db-password="${MAGENTO_DATABASE_PWD}" \
         --language=en_US --currency=USD --timezone=America/Chicago --use-rewrites=1

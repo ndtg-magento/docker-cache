@@ -59,8 +59,13 @@ RUN apk del .phpize-deps \
 # Install Magento
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-COPY ./docker/rootfs /rootfs
+# Save Cache
 COPY ./docker/magento/auth.json /root/.composer/
+RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=${MAGENTO_VERSION} ${DOCUMENT_ROOT}/cache
+RUN rm -rf ${DOCUMENT_ROOT}/cache
+
+# Copy Scripts
+COPY ./docker/rootfs /rootfs
 COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
 COPY ./docker/aliases.sh /etc/profile.d/aliases.sh
 
@@ -76,10 +81,6 @@ RUN chmod u+x /rootfs/* \
 
 RUN ln -s /rootfs/magento:setup /usr/local/bin/magento:setup
 RUN ln -s /rootfs/magento:install /usr/local/bin/magento:install
-
-# Save Cache
-RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=${MAGENTO_VERSION} ${DOCUMENT_ROOT}/cache
-RUN rm -rf ${DOCUMENT_ROOT}/cache
 
 WORKDIR ${DOCUMENT_ROOT}
 
