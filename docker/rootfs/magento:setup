@@ -1,18 +1,24 @@
 #!/bin/sh
 set -e
 
-. /rootfs/magento-setup-default
-. /rootfs/magento-setup-production
+echo ". /usr/local/bin/docker-mysql-entrypoint"
+. /usr/local/bin/docker-mysql-entrypoint
+
+echo ". /usr/local/bin/docker-redis-entrypoint"
+. /usr/local/bin/docker-redis-entrypoint
+
+. /rootfs/magento:setup:new
+. /rootfs/magento:setup:production
 
 echo "${DOCUMENT_ROOT}/bin/magento -V"
 "${DOCUMENT_ROOT}"/bin/magento -V
 
+install_new_magento
+
 echo "${DOCUMENT_ROOT}/bin/magento deploy:mode:set ${MAGENTO_MODE} --skip-compilation"
 "${DOCUMENT_ROOT}"/bin/magento deploy:mode:set "${MAGENTO_MODE}" --skip-compilation
 
-if [ "${MAGENTO_MODE}" = "production" ]; then
-    setup_static_content
-fi
+setup_static_content
 
 echo "${DOCUMENT_ROOT}/bin/magento maintenance:enable"
 "${DOCUMENT_ROOT}"/bin/magento maintenance:enable
@@ -38,14 +44,8 @@ echo "${DOCUMENT_ROOT}/bin/magento cache:flush"
 echo "${DOCUMENT_ROOT}/bin/magento maintenance:disable"
 "${DOCUMENT_ROOT}"/bin/magento maintenance:disable
 
-if [ "${MAGENTO_MODE}" = "production" ]; then
-    production_permission
-else
-    default_permission
-fi
+production_permission
+
 echo "chmod u+x ${DOCUMENT_ROOT}/bin/magento"
 chmod u+x "${DOCUMENT_ROOT}"/bin/magento
-
-echo "chown -R magento:magento ${DOCUMENT_ROOT}/var"
-chown -R magento:magento "${DOCUMENT_ROOT}"/var
 

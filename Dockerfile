@@ -8,7 +8,7 @@ ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
 # Install package
 
-RUN apk add --no-cache freetype \
+RUN apk add --update --no-cache freetype \
     libpng \
     libjpeg \
     libjpeg \
@@ -20,7 +20,7 @@ RUN apk add --no-cache freetype \
     libxslt-dev \
     freetype-dev \
     libjpeg-turbo-dev \
-    vim
+    redis mysql mysql-client vim
 
 RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS
 
@@ -63,20 +63,27 @@ COPY ./docker/rootfs /rootfs
 COPY ./docker/magento/auth.json /root/.composer/
 COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
 COPY ./docker/aliases.sh /etc/profile.d/aliases.sh
-COPY ./docker/magento-entrypoint /usr/local/bin/magento-entrypoint
+
 COPY ./docker/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
+COPY ./docker/docker-redis-entrypoint /usr/local/bin/docker-redis-entrypoint
+COPY ./docker/docker-mysql-entrypoint /usr/local/bin/docker-mysql-entrypoint
+COPY ./docker/docker-magento-entrypoint /usr/local/bin/docker-magento-entrypoint
 
-RUN chmod u+x /rootfs/*
-RUN chmod u+x /usr/local/bin/magento-entrypoint
+RUN chmod u+x /rootfs/* \
+            /usr/local/bin/docker-magento-entrypoint \
+            /usr/local/bin/docker-redis-entrypoint \
+            /usr/local/bin/docker-mysql-entrypoint
 
-RUN ln -s /rootfs/magento-system-setup /usr/local/bin/magento:setup
-RUN ln -s /rootfs/magento-composer-installer /usr/local/bin/magento:install
+RUN ln -s /rootfs/magento:setup /usr/local/bin/magento:setup
+RUN ln -s /rootfs/magento:install /usr/local/bin/magento:install
 
 # Save Cache
 RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=${MAGENTO_VERSION} ${DOCUMENT_ROOT}/cache
 RUN rm -rf ${DOCUMENT_ROOT}/cache
 
 WORKDIR ${DOCUMENT_ROOT}
+
+RUN addgroup mysql mysql
 
 # Create a user group 'xyzgroup'
 RUN addgroup -S magento
