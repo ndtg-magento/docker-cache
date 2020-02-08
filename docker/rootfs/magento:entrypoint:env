@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+if [ -z "${MAGENTO_DATABASE_PORT}" ]; then
+    export MAGENTO_DATABASE_PORT=3306
+fi
+
+if [ -z "${MAGENTO_CACHE_REDIS_PORT}" ]; then
+    export MAGENTO_CACHE_REDIS_PORT=6379
+fi
+
+if [ -z "${MAGENTO_MODE}" ]; then
+    export MAGENTO_MODE=production
+fi
