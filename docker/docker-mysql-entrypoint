@@ -50,3 +50,4 @@ exec /usr/bin/mysqld --user=root --console --skip-name-resolve --skip-networking
 sleep 5
 echo "[i] Sleeping 5 sec"
 
+mysql -V
