@@ -74,13 +74,6 @@ install_new_magento() {
         install_sampledata
     fi
 
-    echo "${DOCUMENT_ROOT}/bin/magento deploy:mode:set ${MAGENTO_MODE} --skip-compilation"
-    "${DOCUMENT_ROOT}"/bin/magento deploy:mode:set "${MAGENTO_MODE}" --skip-compilation
-
-    if [ "${MAGENTO_MODE}" = "production" ]; then
-        minify_static_file
-    fi
-
     install_varnish_cache
     install_redis_cache
     setup_crontab
