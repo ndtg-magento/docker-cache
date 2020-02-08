@@ -15,6 +15,10 @@ setup_static_content() {
 }
 
 minify_static_file() {
+    if [ -z "${MAGENTO_MINIFY_STATIC_FILE}" ]; then
+        MAGENTO_MINIFY_STATIC_FILE=true
+    fi
+
     if [ "${MAGENTO_MINIFY_STATIC_FILE}" = true ]; then
         echo "${DOCUMENT_ROOT}/bin/magento config:set dev/js/enable_js_bundling 1"
         "${DOCUMENT_ROOT}"/bin/magento config:set dev/js/enable_js_bundling 1
