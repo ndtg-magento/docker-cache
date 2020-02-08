@@ -20,7 +20,7 @@ RUN apk add --update --no-cache freetype \
     libxslt-dev \
     freetype-dev \
     libjpeg-turbo-dev \
-    redis mysql mysql-client vimq
+    redis mysql mysql-client vim
 
 RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS
 
