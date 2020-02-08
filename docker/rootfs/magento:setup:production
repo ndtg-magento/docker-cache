@@ -59,6 +59,6 @@ production_permission() {
         "${DOCUMENT_ROOT}"/generated/metadata \( -type f -or -type d \) -exec chmod g-w {} + \
         && chmod o+rwx "${DOCUMENT_ROOT}"/app/etc/env.php
 
-    echo "find ${DOCUMENT_ROOT}/var/cache \( -type d -or -type f \) -exec chmod 777 {} +;"
-    find "${DOCUMENT_ROOT}"/var/cache \( -type d -or -type f \) -exec chmod 777 {} +;
+    echo "find ${DOCUMENT_ROOT}/var/cache ${DOCUMENT_ROOT}/var/page_cache \( -type d -or -type f \) -exec chmod 777 {} +;"
+    find "${DOCUMENT_ROOT}"/var/cache "${DOCUMENT_ROOT}"/var/page_cache \( -type d -or -type f \) -exec chmod 777 {} +;
 }
