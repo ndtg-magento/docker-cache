@@ -10,6 +10,9 @@ echo ". /usr/local/bin/docker-redis-entrypoint"
 . /rootfs/magento:setup:new
 . /rootfs/magento:setup:production
 
+sleep 2
+echo "[i] Sleeping 2 sec before setup."
+
 echo "${DOCUMENT_ROOT}/bin/magento -V"
 "${DOCUMENT_ROOT}"/bin/magento -V
 
