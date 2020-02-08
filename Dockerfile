@@ -67,15 +67,11 @@ RUN rm -rf ${DOCUMENT_ROOT}/cache
 # Copy Scripts
 COPY ./docker/rootfs /rootfs
 COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
-COPY ./docker/aliases.sh /etc/profile.d/aliases.sh
 
-COPY ./docker/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
 COPY ./docker/docker-redis-entrypoint /usr/local/bin/docker-redis-entrypoint
 COPY ./docker/docker-mysql-entrypoint /usr/local/bin/docker-mysql-entrypoint
-COPY ./docker/docker-magento-entrypoint /usr/local/bin/docker-magento-entrypoint
 
 RUN chmod u+x /rootfs/* \
-            /usr/local/bin/docker-magento-entrypoint \
             /usr/local/bin/docker-redis-entrypoint \
             /usr/local/bin/docker-mysql-entrypoint
 
