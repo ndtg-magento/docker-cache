@@ -3,6 +3,9 @@ FROM php:7.3-fpm-alpine
 MAINTAINER Nguyen Tuan Giang "https://github.com/ntuangiang"
 
 ENV MAGENTO_VERSION=2.3.3
+ENV MAGENTO_MODE=production
+ENV MAGENTO_DATABASE_PORT=3306
+ENV MAGENTO_CACHE_REDIS_PORT=6379
 
 ENV DOCUMENT_ROOT=/usr/share/nginx/html
 

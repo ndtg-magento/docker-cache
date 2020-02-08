@@ -20,10 +20,8 @@ while [ ! -f "${MAGENTO_ENV}" ]
 do
 		echo "Waiting for ${MAGENTO_ENV}..."
 		if [ -f "${MAGENTO_ENV_TEMPLATE}" ]; then
-				if [ ! -f "${MAGENTO_ENV}" ]; then
         		echo "cp ${MAGENTO_ENV_TEMPLATE} ${MAGENTO_ENV}"
             cp "${MAGENTO_ENV_TEMPLATE}" "${MAGENTO_ENV}"
-        fi
     fi
     sleep 2;
 done
