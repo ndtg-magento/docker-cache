@@ -44,6 +44,9 @@ minify_static_file() {
 }
 
 production_permission() {
+    echo "mkdir -p ${DOCUMENT_ROOT}/var/cache ${DOCUMENT_ROOT}/var/report ${DOCUMENT_ROOT}/var/tmp"
+    mkdir -p "${DOCUMENT_ROOT}"/var/cache "${DOCUMENT_ROOT}"/var/report "${DOCUMENT_ROOT}"/var/tmp
+
     echo "chown -R magento:magento ${DOCUMENT_ROOT}/var"
     chown -R magento:magento "${DOCUMENT_ROOT}"/var
 
@@ -54,7 +57,7 @@ production_permission() {
         ${DOCUMENT_ROOT}/pub/static ${DOCUMENT_ROOT}/app/etc ${DOCUMENT_ROOT}/generated/code  \
         ${DOCUMENT_ROOT}/generated/metadata \( -type f -or -type d \) -exec chmod g-w {} + \
         && chmod o+rwx ${DOCUMENT_ROOT}/app/etc/env.php"
-    find "${DOCUMENT_ROOT}"/app/code "${DOCUMENT_ROOT}"/var/view_preprocessed "${DOCUMENT_ROOT}"/vendor \
+    find "${DOCUMENT_ROOT}"/app/code "${DOCUMENT_ROOT}"/var "${DOCUMENT_ROOT}"/vendor \
         "${DOCUMENT_ROOT}"/pub/static "${DOCUMENT_ROOT}"/app/etc "${DOCUMENT_ROOT}"/generated/code  \
         "${DOCUMENT_ROOT}"/generated/metadata \( -type f -or -type d \) -exec chmod g-w {} + \
         && chmod o+rwx "${DOCUMENT_ROOT}"/app/etc/env.php
