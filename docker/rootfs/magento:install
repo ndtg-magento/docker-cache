@@ -20,8 +20,8 @@ if [ -f "${DOCUMENT_ROOT}"/composer.json ]; then
         fi
     fi
 
-    echo "chown -R magento:magento ${DOCUMENT_ROOT}/"
-    chown -R magento:magento ${DOCUMENT_ROOT}/
+    echo "chown -R www-data:www-data ${DOCUMENT_ROOT}/"
+    chown -R www-data:www-data ${DOCUMENT_ROOT}/
 
     echo "find ${DOCUMENT_ROOT}/app/etc ${DOCUMENT_ROOT}/vendor \( -type f -or -type d \) -exec chmod g-w {} + \;"
     find "${DOCUMENT_ROOT}"/pub/static "${DOCUMENT_ROOT}"/vendor \( -type f -or -type d \) -exec chmod g-w {} +
