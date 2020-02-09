@@ -1,0 +1,54 @@
+#!/bin/sh
+set -e
+
+echo ". /usr/local/bin/docker-mysql-entrypoint"
+. /usr/local/bin/docker-mysql-entrypoint
+
+echo ". /usr/local/bin/docker-redis-entrypoint"
+. /usr/local/bin/docker-redis-entrypoint
+
+. /rootfs/magento:setup:new
+. /rootfs/magento:setup:production
+
+sleep 2
+echo "[i] Sleeping 2 sec before setup."
+
+echo "${DOCUMENT_ROOT}/bin/magento -V"
+"${DOCUMENT_ROOT}"/bin/magento -V
+
+install_new_magento
+
+echo "${DOCUMENT_ROOT}/bin/magento deploy:mode:set ${MAGENTO_MODE} --skip-compilation"
+"${DOCUMENT_ROOT}"/bin/magento deploy:mode:set "${MAGENTO_MODE}" --skip-compilation
+
+setup_static_content
+
+echo "${DOCUMENT_ROOT}/bin/magento maintenance:enable"
+"${DOCUMENT_ROOT}"/bin/magento maintenance:enable
+
+echo "${DOCUMENT_ROOT}/bin/magento setup:db-schema:upgrade"
+"${DOCUMENT_ROOT}"/bin/magento setup:db-schema:upgrade
+
+echo "${DOCUMENT_ROOT}/bin/magento setup:db-data:upgrade"
+"${DOCUMENT_ROOT}"/bin/magento setup:db-data:upgrade
+
+echo "${DOCUMENT_ROOT}/bin/magento app:config:import --help >/dev/null 2>&1"
+"${DOCUMENT_ROOT}"/bin/magento app:config:import --help >/dev/null 2>&1
+
+echo "${DOCUMENT_ROOT}/bin/magento app:config:import"
+"${DOCUMENT_ROOT}"/bin/magento app:config:import
+
+echo "${DOCUMENT_ROOT}/bin/magento module:status --no-ansi"
+"${DOCUMENT_ROOT}"/bin/magento module:status --no-ansi
+
+echo "${DOCUMENT_ROOT}/bin/magento cache:flush"
+"${DOCUMENT_ROOT}"/bin/magento cache:flush
+
+echo "${DOCUMENT_ROOT}/bin/magento maintenance:disable"
+"${DOCUMENT_ROOT}"/bin/magento maintenance:disable
+
+production_permission
+
+echo "chmod u+x ${DOCUMENT_ROOT}/bin/magento"
+chmod u+x "${DOCUMENT_ROOT}"/bin/magento
+
