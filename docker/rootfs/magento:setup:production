@@ -53,11 +53,11 @@ production_permission() {
     echo "find ${DOCUMENT_ROOT}/var \( -type d -or -type f \) -exec chmod 777 {} +;"
     find "${DOCUMENT_ROOT}"/var \( -type d -or -type f \) -exec chmod 777 {} +;
 
-    echo "find ${DOCUMENT_ROOT}/app/code ${DOCUMENT_ROOT}/var/view_preprocessed ${DOCUMENT_ROOT}/vendor \
+    echo "find ${DOCUMENT_ROOT}/app/code ${DOCUMENT_ROOT}/var/* ${DOCUMENT_ROOT}/vendor \
         ${DOCUMENT_ROOT}/pub/static ${DOCUMENT_ROOT}/app/etc ${DOCUMENT_ROOT}/generated/code  \
         ${DOCUMENT_ROOT}/generated/metadata \( -type f -or -type d \) -exec chmod g-w {} + \
         && chmod o+rwx ${DOCUMENT_ROOT}/app/etc/env.php"
-    find "${DOCUMENT_ROOT}"/app/code "${DOCUMENT_ROOT}"/var "${DOCUMENT_ROOT}"/vendor \
+    find "${DOCUMENT_ROOT}"/app/code "${DOCUMENT_ROOT}"/var/* "${DOCUMENT_ROOT}"/vendor \
         "${DOCUMENT_ROOT}"/pub/static "${DOCUMENT_ROOT}"/app/etc "${DOCUMENT_ROOT}"/generated/code  \
         "${DOCUMENT_ROOT}"/generated/metadata \( -type f -or -type d \) -exec chmod g-w {} + \
         && chmod o+rwx "${DOCUMENT_ROOT}"/app/etc/env.php
