@@ -68,7 +68,7 @@ RUN rm -rf ${DOCUMENT_ROOT}/cache
 COPY ./docker/rootfs /rootfs
 COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
 
-COPY ./docker/magento-entrypoint /usr/local/bin/magento-entrypoint
+COPY ./docker/docker-magento-entrypoint /usr/local/bin/docker-magento-entrypoint
 COPY ./docker/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
 
 RUN chmod u+x /rootfs/* \
