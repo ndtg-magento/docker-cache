@@ -42,6 +42,12 @@ RUN docker-php-ext-install \
     xsl \
     sockets
 
+RUN pecl install \
+    redis \
+
+RUN docker-php-ext-enable \
+    redis \
+
 RUN apk del .phpize-deps \
     && apk del --no-cache \
        libpng-dev \
@@ -63,6 +69,7 @@ COPY ./docker/rootfs /rootfs
 COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
 
 COPY ./docker/magento-entrypoint /usr/local/bin/magento-entrypoint
+COPY ./docker/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
 
 RUN chmod u+x /rootfs/* \
             /usr/local/bin/magento-entrypoint
