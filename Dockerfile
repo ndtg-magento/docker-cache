@@ -2,7 +2,7 @@ FROM php:7.3-fpm-alpine
 
 MAINTAINER Nguyen Tuan Giang "https://github.com/ntuangiang"
 
-ENV MAGENTO_VERSION=2.3.3
+ENV MAGENTO_VERSION="2.3.5-p1"
 
 ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
@@ -42,12 +42,6 @@ RUN docker-php-ext-install \
     xsl \
     sockets
 
-RUN pecl install \
-    redis
-
-RUN docker-php-ext-enable \
-    redis
-
 RUN apk del .phpize-deps \
     && apk del --no-cache \
        libpng-dev \
@@ -68,26 +62,12 @@ RUN rm -rf ${DOCUMENT_ROOT}/cache
 COPY ./docker/rootfs /rootfs
 COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
 
-COPY ./docker/docker-redis-entrypoint /usr/local/bin/docker-redis-entrypoint
-COPY ./docker/docker-mysql-entrypoint /usr/local/bin/docker-mysql-entrypoint
+COPY ./docker/magento-entrypoint /usr/local/bin/magento-entrypoint
 
 RUN chmod u+x /rootfs/* \
-            /usr/local/bin/docker-redis-entrypoint \
-            /usr/local/bin/docker-mysql-entrypoint
+            /usr/local/bin/magento-entrypoint
 
 RUN ln -s /rootfs/magento:setup /usr/local/bin/magento:setup
 RUN ln -s /rootfs/magento:install /usr/local/bin/magento:install
 
 WORKDIR ${DOCUMENT_ROOT}
-
-RUN addgroup mysql mysql
-
-# Create a user group 'xyzgroup'
-RUN addgroup -S magento
-
-# Create a user 'appuser' under 'xyzgroup'
-RUN adduser -SD magento magento
-
-RUN chown -R magento:magento ${DOCUMENT_ROOT}/
-
-RUN ln -s ${DOCUMENT_ROOT}/bin/magento /usr/local/bin/magento

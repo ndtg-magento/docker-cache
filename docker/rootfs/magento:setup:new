@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 
-. /rootfs/magento:setup:production
 . /rootfs/magento:setup:sampledata
 . /rootfs/magento:setup:crontab
 

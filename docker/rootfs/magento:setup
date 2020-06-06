@@ -1,54 +1,33 @@
 #!/bin/sh
 set -e
 
-echo ". /usr/local/bin/docker-mysql-entrypoint"
-. /usr/local/bin/docker-mysql-entrypoint
-
-echo ". /usr/local/bin/docker-redis-entrypoint"
-. /usr/local/bin/docker-redis-entrypoint
-
 . /rootfs/magento:setup:new
-. /rootfs/magento:setup:production
+. /rootfs/magento:redis:waiter
+. /rootfs/magento:database:waiter
+. /rootfs/magento:setup:crontab
 
-sleep 2
-echo "[i] Sleeping 2 sec before setup."
+MAGENTO_ENV=${DOCUMENT_ROOT}/app/etc/env.php
+MAGENTO_ENV_TEMPLATE=${DOCUMENT_ROOT}/app/etc/env.php.template
 
-echo "${DOCUMENT_ROOT}/bin/magento -V"
-"${DOCUMENT_ROOT}"/bin/magento -V
+while [ ! -f "${MAGENTO_ENV}" ]
+do
+		echo "Waiting for ${MAGENTO_ENV}..."
+		if [ -f "${MAGENTO_ENV_TEMPLATE}" ]; then
+				if [ ! -f "${MAGENTO_ENV}" ]; then
+        		echo "cp ${MAGENTO_ENV_TEMPLATE} ${MAGENTO_ENV}"
+            cp "${MAGENTO_ENV_TEMPLATE}" "${MAGENTO_ENV}"
+        fi
 
-install_new_magento
+        setup_crontab
+    elif [ ! -f "${MAGENTO_ENV}" ] && [ "${MAGENTO_INSTALL_NEW}" ] && [ "${MAGENTO_INSTALL_NEW}" = true ]; then
+    		install_new_magento
+    fi
+    sleep 2;
+done
 
-echo "${DOCUMENT_ROOT}/bin/magento deploy:mode:set ${MAGENTO_MODE} --skip-compilation"
-"${DOCUMENT_ROOT}"/bin/magento deploy:mode:set "${MAGENTO_MODE}" --skip-compilation
+echo "cp ${MAGENTO_ENV} ${MAGENTO_ENV_TEMPLATE}"
+cp "${MAGENTO_ENV}" "${MAGENTO_ENV_TEMPLATE}"
 
-setup_static_content
-
-echo "${DOCUMENT_ROOT}/bin/magento maintenance:enable"
-"${DOCUMENT_ROOT}"/bin/magento maintenance:enable
-
-echo "${DOCUMENT_ROOT}/bin/magento setup:db-schema:upgrade"
-"${DOCUMENT_ROOT}"/bin/magento setup:db-schema:upgrade
-
-echo "${DOCUMENT_ROOT}/bin/magento setup:db-data:upgrade"
-"${DOCUMENT_ROOT}"/bin/magento setup:db-data:upgrade
-
-echo "${DOCUMENT_ROOT}/bin/magento app:config:import --help >/dev/null 2>&1"
-"${DOCUMENT_ROOT}"/bin/magento app:config:import --help >/dev/null 2>&1
-
-echo "${DOCUMENT_ROOT}/bin/magento app:config:import"
-"${DOCUMENT_ROOT}"/bin/magento app:config:import
-
-echo "${DOCUMENT_ROOT}/bin/magento module:status --no-ansi"
-"${DOCUMENT_ROOT}"/bin/magento module:status --no-ansi
-
-echo "${DOCUMENT_ROOT}/bin/magento cache:flush"
-"${DOCUMENT_ROOT}"/bin/magento cache:flush
-
-echo "${DOCUMENT_ROOT}/bin/magento maintenance:disable"
-"${DOCUMENT_ROOT}"/bin/magento maintenance:disable
-
-production_permission
-
-echo "chmod u+x ${DOCUMENT_ROOT}/bin/magento"
-chmod u+x "${DOCUMENT_ROOT}"/bin/magento
+wait_redis_connection
+wait_database_connection
 
