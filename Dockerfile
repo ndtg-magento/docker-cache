@@ -7,7 +7,6 @@ ENV MAGENTO_VERSION="2.3.5-p1"
 ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
 # Install package
-
 RUN apk add --update --no-cache freetype \
     libpng \
     libjpeg \
@@ -42,12 +41,6 @@ RUN docker-php-ext-install \
     xsl \
     sockets
 
-RUN pecl install \
-    redis \
-
-RUN docker-php-ext-enable \
-    redis \
-
 RUN apk del .phpize-deps \
     && apk del --no-cache \
        libpng-dev \
@@ -59,22 +52,10 @@ RUN apk del .phpize-deps \
 # Install Magento
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Save Cache
 COPY ./docker/magento/auth.json /root/.composer/
+
+# Save Cache
 RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=${MAGENTO_VERSION} ${DOCUMENT_ROOT}/cache
 RUN rm -rf ${DOCUMENT_ROOT}/cache
-
-# Copy Scripts
-COPY ./docker/rootfs /rootfs
-COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
-
-COPY ./docker/docker-magento-entrypoint /usr/local/bin/docker-magento-entrypoint
-COPY ./docker/docker-php-entrypoint /usr/local/bin/docker-php-entrypoint
-
-RUN chmod u+x /rootfs/* \
-            /usr/local/bin/magento-entrypoint
-
-RUN ln -s /rootfs/magento:setup /usr/local/bin/magento:setup
-RUN ln -s /rootfs/magento:install /usr/local/bin/magento:install
 
 WORKDIR ${DOCUMENT_ROOT}
