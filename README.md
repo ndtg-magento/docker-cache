@@ -2,7 +2,7 @@
 ![Docker Pulls](https://img.shields.io/docker/pulls/ntuangiang/magento.svg)
 ![Docker Automated build](https://img.shields.io/docker/automated/ntuangiang/magento.svg)
 
-# Magento 2.3.3 Docker
+# Magento 2.3.5 Docker
 
 [https://devdocs.magento.com](https://devdocs.magento.com) Meet the small business, mid-sized business, and enterprise-level companies who are benefiting from the power and flexibility of Magento on their web stores. We built the eCommerce platform, so you can build your business.
 
@@ -13,7 +13,7 @@
 - Write a `Dockerfile` file.
 
 ```Dockerfile
-FROM ntuangiang/magento-cache:2.3.3 as magento-build
+FROM ntuangiang/magento-cache:2.3.5 as magento-build
 
 ENV MAGENTO_MODE=production
 
@@ -34,7 +34,7 @@ COPY --chown=magento:magento ./app/ ${DOCUMENT_ROOT}/app/
 
 RUN magento:setup
 
-FROM ntuangiang/magento:2.3.3 as magento-php-fpm
+FROM ntuangiang/magento:2.3.5 as magento-php-fpm
 
 COPY --from=magento-build --chown=magento:magento \
     ${DOCUMENT_ROOT}/ \
