@@ -21,8 +21,6 @@ RUN apk add --update --no-cache freetype \
     libjpeg-turbo-dev \
     redis mysql mysql-client vim
 
-RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS
-
 RUN docker-php-ext-configure gd \
     --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/ \
     && docker-php-ext-configure zip --with-libzip \
@@ -41,8 +39,7 @@ RUN docker-php-ext-install \
     xsl \
     sockets
 
-RUN apk del .phpize-deps \
-    && apk del --no-cache \
+RUN apk del --no-cache \
        libpng-dev \
        libxslt-dev \
        freetype-dev \
