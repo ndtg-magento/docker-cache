@@ -54,7 +54,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 COPY ./docker/magento/auth.json /root/.composer/
 
 # Save Cache
-RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=${MAGENTO_VERSION} ${DOCUMENT_ROOT}/cache
-RUN rm -rf ${DOCUMENT_ROOT}/cache
+RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=${MAGENTO_VERSION} ${DOCUMENT_ROOT}/
 
 WORKDIR ${DOCUMENT_ROOT}
