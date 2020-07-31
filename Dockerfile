@@ -2,7 +2,7 @@ FROM php:7.3-fpm-alpine
 
 MAINTAINER Nguyen Tuan Giang "https://github.com/ntuangiang"
 
-ENV MAGENTO_VERSION=2.3.3
+ENV MAGENTO_VERSION=2.3.5-p2
 
 ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
@@ -61,19 +61,13 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Save Cache
 COPY ./docker/magento/auth.json /root/.composer/
-RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=${MAGENTO_VERSION} ${DOCUMENT_ROOT}/cache
-RUN rm -rf ${DOCUMENT_ROOT}/cache
+RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=${MAGENTO_VERSION} ${DOCUMENT_ROOT}
 
 # Copy Scripts
 COPY ./docker/rootfs /rootfs
 COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
 
-COPY ./docker/docker-redis-entrypoint /usr/local/bin/docker-redis-entrypoint
-COPY ./docker/docker-mysql-entrypoint /usr/local/bin/docker-mysql-entrypoint
-
-RUN chmod u+x /rootfs/* \
-            /usr/local/bin/docker-redis-entrypoint \
-            /usr/local/bin/docker-mysql-entrypoint
+RUN chmod u+x /rootfs/*
 
 RUN ln -s /rootfs/magento:setup /usr/local/bin/magento:setup
 RUN ln -s /rootfs/magento:install /usr/local/bin/magento:install

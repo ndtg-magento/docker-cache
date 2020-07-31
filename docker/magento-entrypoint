@@ -1,60 +1,25 @@
 #!/bin/sh
 set -e
 
-. /rootfs/magento-setup-default
-. /rootfs/magento-setup-production
-. /rootfs/magento-crontab-installer
+MAGENTO_ENV=${DOCUMENT_ROOT}/app/etc/env.php
+MAGENTO_ENV_TEMPLATE=${DOCUMENT_ROOT}/app/etc/env.php.template
 
-VENDOR=${DOCUMENT_ROOT}/vendor
+while [ ! -f "${MAGENTO_ENV}" ]
+do
+		echo "Waiting for ${MAGENTO_ENV}..."
+		if [ -f "${MAGENTO_ENV_TEMPLATE}" ]; then
+				if [ ! -f "${MAGENTO_ENV}" ]; then
+        		echo "cp ${MAGENTO_ENV_TEMPLATE} ${MAGENTO_ENV}"
+            cp "${MAGENTO_ENV_TEMPLATE}" "${MAGENTO_ENV}"
+        fi
+    elif [ ! -f "${MAGENTO_ENV}" ] && [ "${MAGENTO_INSTALL_NEW}" ] && [ "${MAGENTO_INSTALL_NEW}" = true ]; then
+    		. /rootfs/magento:setup
+    fi
+    sleep 2;
+done
 
-if [ -d "${VENDOR}" ] && [ "$(ls "${VENDOR}")" ]; then
-		. /rootfs/magento-system-installer
+echo "cp ${MAGENTO_ENV} ${MAGENTO_ENV_TEMPLATE}"
+cp "${MAGENTO_ENV}" "${MAGENTO_ENV_TEMPLATE}"
 
-		echo "${DOCUMENT_ROOT}/bin/magento -V"
-		"${DOCUMENT_ROOT}"/bin/magento -V
-
-		echo "${DOCUMENT_ROOT}/bin/magento deploy:mode:set ${MAGENTO_MODE} --skip-compilation"
-        "${DOCUMENT_ROOT}"/bin/magento deploy:mode:set "${MAGENTO_MODE}" --skip-compilation
-
-		if [ "${MAGENTO_MODE}" = "production" ]; then
-            setup_static_content
-		fi
-
-		echo "${DOCUMENT_ROOT}/bin/magento maintenance:enable"
-		"${DOCUMENT_ROOT}"/bin/magento maintenance:enable
-
-		echo "${DOCUMENT_ROOT}/bin/magento setup:db-schema:upgrade"
-		"${DOCUMENT_ROOT}"/bin/magento setup:db-schema:upgrade
-
-		echo "${DOCUMENT_ROOT}/bin/magento setup:db-data:upgrade"
-		"${DOCUMENT_ROOT}"/bin/magento setup:db-data:upgrade
-
-		echo "${DOCUMENT_ROOT}/bin/magento app:config:import --help >/dev/null 2>&1"
-		"${DOCUMENT_ROOT}"/bin/magento app:config:import --help >/dev/null 2>&1
-
-		echo "${DOCUMENT_ROOT}/bin/magento app:config:import"
-		"${DOCUMENT_ROOT}"/bin/magento app:config:import
-
-		echo "${DOCUMENT_ROOT}/bin/magento module:status --no-ansi"
-		"${DOCUMENT_ROOT}"/bin/magento module:status --no-ansi
-
-		echo "${DOCUMENT_ROOT}/bin/magento cache:flush"
-		"${DOCUMENT_ROOT}"/bin/magento cache:flush
-
-		echo "${DOCUMENT_ROOT}/bin/magento maintenance:disable"
-		"${DOCUMENT_ROOT}"/bin/magento maintenance:disable
-
-		if [ "${MAGENTO_MODE}" = "production" ]; then
-				production_permission
-		else
-				default_permission
-		fi
-		echo "chmod u+x ${DOCUMENT_ROOT}/bin/magento"
-		chmod u+x "${DOCUMENT_ROOT}"/bin/magento
-
-		echo "chown -R magento:magento ${DOCUMENT_ROOT}/var"
-		chown -R magento:magento "${DOCUMENT_ROOT}"/var
-
-else
-		echo "${DOCUMENT_ROOT}/vendor is empty."
-fi
+wait_redis_connection
+wait_database_connection

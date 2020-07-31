@@ -1,11 +1,11 @@
 #!/bin/sh
 set -e
 
-echo ". /usr/local/bin/docker-mysql-entrypoint"
-. /usr/local/bin/docker-mysql-entrypoint
+echo ". /rootfs/magento:setup:db"
+. /rootfs/magento:setup:db
 
-echo ". /usr/local/bin/docker-redis-entrypoint"
-. /usr/local/bin/docker-redis-entrypoint
+echo ". /rootfs/magento:setup:redis"
+. /rootfs/magento:setup:redis
 
 . /rootfs/magento:setup:new
 . /rootfs/magento:setup:production
