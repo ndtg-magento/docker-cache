@@ -47,7 +47,14 @@ echo "${DOCUMENT_ROOT}/bin/magento cache:flush"
 echo "${DOCUMENT_ROOT}/bin/magento maintenance:disable"
 "${DOCUMENT_ROOT}"/bin/magento maintenance:disable
 
+if [ "${MAGENTO_EXPORT_DB}" = true ]; then
+  . /rootfs/magento:db:dump
+fi
+
 production_permission
+
+echo "cp ${MAGENTO_ENV} ${MAGENTO_ENV_TEMPLATE}"
+cp "${MAGENTO_ENV}" "${MAGENTO_ENV_TEMPLATE}"
 
 echo "chmod u+x ${DOCUMENT_ROOT}/bin/magento"
 chmod u+x "${DOCUMENT_ROOT}"/bin/magento
