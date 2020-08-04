@@ -73,7 +73,9 @@ install_new_magento() {
         --admin-firstname=${MAGENTO_ADMIN_FIRST_NAME} --admin-lastname=${MAGENTO_ADMIN_LAST_NAME} --admin-email=${MAGENTO_ADMIN_EMAIL} \
         --admin-user=${MAGENTO_ADMIN_USER} --admin-password=${MAGENTO_ADMIN_PWD} \
         --db-user=${MAGENTO_DATABASE_USER} --db-password=${MAGENTO_DATABASE_PWD} \
-        --language=en_US --currency=USD --timezone=America/Chicago --use-rewrites=1"
+        --language=en_US --currency=USD --timezone=America/Chicago --use-rewrites=1 \
+        --search-engine=${MAGENTO_SEARCH_ENGINE} --elasticsearch-host=${MAGENTO_SEARCH_ENGINE_HOST} \
+        --elasticsearch-port=${MAGENTO_SEARCH_ENGINE_PORT}"
 
     ${DOCUMENT_ROOT}/bin/magento setup:install --base-url=${MAGENTO_BASE_URL} \
         --db-host=${MAGENTO_DATABASE_HOST}:${MAGENTO_DATABASE_PORT} --db-name=${MAGENTO_DATABASE_DB} \
@@ -83,7 +85,6 @@ install_new_magento() {
         --language=en_US --currency=USD --timezone=America/Chicago --use-rewrites=1 \
         --search-engine=${MAGENTO_SEARCH_ENGINE} --elasticsearch-host=${MAGENTO_SEARCH_ENGINE_HOST} \
         --elasticsearch-port=${MAGENTO_SEARCH_ENGINE_PORT}
-
 
     if [ "${MAGENTO_SAMPLEDATA_INSTALL}" = true ]; then
         install_sampledata

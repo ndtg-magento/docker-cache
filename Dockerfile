@@ -7,7 +7,6 @@ ENV MAGENTO_VERSION=2.4
 ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
 # Install package
-
 RUN apk add --update --no-cache freetype \
     libpng \
     libjpeg \
@@ -23,6 +22,11 @@ RUN apk add --update --no-cache freetype \
     redis mysql mysql-client vim
 
 RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS
+
+# Install Elasticsearch
+COPY ./docker/elasticsearch /elasticsearch
+RUN chmod u+x /elasticsearch/install.sh
+RUN /elasticsearch/install.sh
 
 RUN docker-php-ext-configure gd \
     && docker-php-ext-configure intl
