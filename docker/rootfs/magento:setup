@@ -7,6 +7,9 @@ echo ". /rootfs/magento:setup:db"
 echo ". /rootfs/magento:setup:redis"
 . /rootfs/magento:setup:redis
 
+echo ". /rootfs/magento:setup:elasticsearch"
+. /rootfs/magento:setup:elasticsearch
+
 . /rootfs/magento:setup:new
 . /rootfs/magento:setup:production
 

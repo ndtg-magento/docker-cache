@@ -1,4 +1,4 @@
-FROM php:7.4-fpm-alpine
+FROM php:7.4-fpm
 
 MAINTAINER Nguyen Tuan Giang "https://github.com/ntuangiang"
 
@@ -7,26 +7,24 @@ ENV MAGENTO_VERSION=2.4
 ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
 # Install package
-RUN apk add --update --no-cache freetype \
-    libpng \
-    libjpeg \
-    libjpeg \
-    libxslt \
-    libjpeg-turbo \
-    icu-dev \
-    libzip-dev \
+RUN apt-get update && apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
     libpng-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libzip-dev \
+    libgmp-dev \
+    libldap2-dev \
+    libmcrypt-dev \
+    zlib1g-dev \
+    libicu-dev \
     libxslt-dev \
-    freetype-dev \
-    libjpeg-turbo-dev \
-    redis mysql mysql-client vim
+    libxml2-dev \
+    unzip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS
-
-# Install Elasticsearch
-COPY ./docker/elasticsearch /elasticsearch
-RUN chmod u+x /elasticsearch/install.sh
-RUN /elasticsearch/install.sh
+RUN pecl install redis
 
 RUN docker-php-ext-configure gd \
     && docker-php-ext-configure intl
@@ -44,21 +42,16 @@ RUN docker-php-ext-install \
     xsl \
     sockets
 
-RUN pecl install \
-    redis
+RUN docker-php-ext-enable redis
 
-RUN docker-php-ext-enable \
-    redis
+# Install Elasticsearch
+RUN cd /usr/share && \
+    curl -L -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.8.1-linux-x86_64.tar.gz && \
+    tar -xvf elasticsearch-7.8.1-linux-x86_64.tar.gz && \
+    rm -rf elasticsearch-7.8.1-linux-x86_64.tar.gz && \
+    ln -s /usr/share/elasticsearch-7.8.1/bin/elasticsearch /usr/local/bin/elasticsearch
 
-RUN apk del .phpize-deps \
-    && apk del --no-cache \
-       libpng-dev \
-       libxslt-dev \
-       freetype-dev \
-       libjpeg-turbo-dev \
-    && rm -rf /var/cache/apk/*
-
-# Install Magento
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Save Cache
@@ -74,17 +67,15 @@ RUN chmod u+x /rootfs/*
 
 RUN ln -s /rootfs/magento:setup /usr/local/bin/magento:setup
 RUN ln -s /rootfs/magento:install /usr/local/bin/magento:install
-
-WORKDIR ${DOCUMENT_ROOT}
-
-RUN addgroup mysql mysql
-
-# Create a user group 'xyzgroup'
-RUN addgroup -S magento
+RUN ln -s ${DOCUMENT_ROOT}/bin/magento /usr/local/bin/magento
 
 # Create a user 'appuser' under 'xyzgroup'
+RUN addgroup magento
 RUN adduser -SD magento magento
 
 RUN chown -R magento:magento ${DOCUMENT_ROOT}/
 
-RUN ln -s ${DOCUMENT_ROOT}/bin/magento /usr/local/bin/magento
+WORKDIR ${DOCUMENT_ROOT}
+
+USER magento
+

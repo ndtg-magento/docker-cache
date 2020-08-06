@@ -1,18 +1,19 @@
-#!/bin/sh
-set -e
+FROM alpine:3.11
 
- apk add --no-cache openjdk11-jre-headless su-exec
+LABEL maintainer "https://github.com/blacktop"
 
-export VERSION=7.8.1
-export DOWNLOAD_URL="https://artifacts.elastic.co/downloads/elasticsearch"
-export ES_TARBAL="${DOWNLOAD_URL}/elasticsearch-oss-${VERSION}-no-jdk-linux-x86_64.tar.gz"
-export ES_TARBALL_ASC="${DOWNLOAD_URL}/elasticsearch-oss-${VERSION}-no-jdk-linux-x86_64.tar.gz.asc"
-export EXPECTED_SHA_URL="${DOWNLOAD_URL}/elasticsearch-oss-${VERSION}-no-jdk-linux-x86_64.tar.gz.sha512"
-export ES_TARBALL_SHA="f0caa06c1172b25d8f9cb9ddced72185aaaabb1b6d7f31fe1ba67172346236651ca3bc560e7ef206b4bf9521f228d46ee98df2e41b129253215135b583086ccc"
-export GPG_KEY="46095ACC8548582C1A2699A9D27D666CD88E42B4"
+RUN apk add --no-cache openjdk11-jre-headless su-exec
 
- apk add --no-cache bash
- apk add --no-cache -t .build-deps wget ca-certificates gnupg openssl \
+ENV VERSION 7.8.1
+ENV DOWNLOAD_URL "https://artifacts.elastic.co/downloads/elasticsearch"
+ENV ES_TARBAL "${DOWNLOAD_URL}/elasticsearch-oss-${VERSION}-no-jdk-linux-x86_64.tar.gz"
+ENV ES_TARBALL_ASC "${DOWNLOAD_URL}/elasticsearch-oss-${VERSION}-no-jdk-linux-x86_64.tar.gz.asc"
+ENV EXPECTED_SHA_URL "${DOWNLOAD_URL}/elasticsearch-oss-${VERSION}-no-jdk-linux-x86_64.tar.gz.sha512"
+ENV ES_TARBALL_SHA "f0caa06c1172b25d8f9cb9ddced72185aaaabb1b6d7f31fe1ba67172346236651ca3bc560e7ef206b4bf9521f228d46ee98df2e41b129253215135b583086ccc"
+ENV GPG_KEY "46095ACC8548582C1A2699A9D27D666CD88E42B4"
+
+RUN apk add --no-cache bash
+RUN apk add --no-cache -t .build-deps wget ca-certificates gnupg openssl \
   && set -ex \
   && cd /tmp \
   && echo "===> Install Elasticsearch..." \
@@ -49,12 +50,23 @@ export GPG_KEY="46095ACC8548582C1A2699A9D27D666CD88E42B4"
   && apk del --purge .build-deps
 
 # TODO: remove this (it removes X-Pack ML so it works on Alpine)
- rm -rf /usr/share/elasticsearch/modules/x-pack-ml/platform/linux-x86_64
+RUN rm -rf /usr/share/elasticsearch/modules/x-pack-ml/platform/linux-x86_64
 
-cp /elasticsearch/config/elastic/* /usr/share/elasticsearch/config
-cp /elasticsearch/config/logrotate /etc/logrotate.d/elasticsearch
-cp /elasticsearch/elastic-entrypoint.sh /
-chmod +x /elastic-entrypoint.sh
+COPY config/elastic /usr/share/elasticsearch/config
+COPY config/logrotate /etc/logrotate.d/elasticsearch
+COPY elastic-entrypoint.sh /
+RUN chmod +x /elastic-entrypoint.sh
+COPY docker-healthcheck /usr/local/bin/
 
-export PATH=/usr/share/elasticsearch/bin:$PATH
-export ES_TMPDIR=/usr/share/elasticsearch/tmp
+WORKDIR /usr/share/elasticsearch
+
+ENV PATH /usr/share/elasticsearch/bin:$PATH
+ENV ES_TMPDIR /usr/share/elasticsearch/tmp
+
+VOLUME ["/usr/share/elasticsearch/data"]
+
+EXPOSE 9200 9300
+ENTRYPOINT ["/elastic-entrypoint.sh"]
+CMD ["elasticsearch"]
+
+# HEALTHCHECK CMD ["docker-healthcheck"]
