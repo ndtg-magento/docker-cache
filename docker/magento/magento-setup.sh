@@ -1,17 +1,17 @@
 #!/bin/sh
 set -e
 
-echo ". /rootfs/magento:setup:db"
-. /rootfs/magento:setup:db
+echo "magento:setup:db"
+. /rootfs/mysql/entrypoint.sh mysqld
 
-echo ". /rootfs/magento:setup:redis"
-. /rootfs/magento:setup:redis
+echo "magento:setup:redis"
+. /rootfs/redis/entrypoint.sh 'redis-server'
 
-echo ". /rootfs/magento:setup:elasticsearch"
-. /rootfs/magento:setup:elasticsearch
+echo "magento:setup:elasticsearch"
+. /rootfs/elasticsearch/entrypoint.sh 'eswrapper'
 
-. /rootfs/magento:setup:new
-. /rootfs/magento:setup:production
+. /rootfs/magento/setup/new.sh
+. /rootfs/magento/setup/production.sh
 
 sleep 2
 echo "[i] Sleeping 2 sec before setup."
@@ -51,7 +51,7 @@ echo "${DOCUMENT_ROOT}/bin/magento maintenance:disable"
 "${DOCUMENT_ROOT}"/bin/magento maintenance:disable
 
 if [ "${MAGENTO_EXPORT_DB}" = true ]; then
-  . /rootfs/magento:db:dump
+  . /rootfs/magento/setup/dump-db.sh
 fi
 
 production_permission

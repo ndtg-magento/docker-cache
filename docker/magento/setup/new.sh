@@ -1,9 +1,8 @@
 #!/bin/sh
 set -e
 
-. /rootfs/magento:setup:production
-. /rootfs/magento:setup:sampledata
-. /rootfs/magento:setup:crontab
+. /rootfs/magento/setup/production.sh
+. /rootfs/magento/setup/crontab.sh
 
 install_new_magento() {
     HOST_DOMAIN="host.docker.internal"
@@ -85,10 +84,6 @@ install_new_magento() {
         --language=en_US --currency=USD --timezone=America/Chicago --use-rewrites=1 \
         --search-engine=${MAGENTO_SEARCH_ENGINE} --elasticsearch-host=${MAGENTO_SEARCH_ENGINE_HOST} \
         --elasticsearch-port=${MAGENTO_SEARCH_ENGINE_PORT}
-
-    if [ "${MAGENTO_SAMPLEDATA_INSTALL}" = true ]; then
-        install_sampledata
-    fi
 
     install_varnish_cache
     install_redis_cache

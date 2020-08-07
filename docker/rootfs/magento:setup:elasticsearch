@@ -1,8 +1,0 @@
-#!/bin/sh
-
-echo ". /elasticsearch/elastic-entrypoint.sh"
-. /elasticsearch/elastic-entrypoint.sh
-
-echo "Starting Elasticsearch..."
-exec elasticsearch &
-

@@ -19,6 +19,10 @@ minify_static_file() {
         MAGENTO_MINIFY_STATIC_FILE=true
     fi
 
+    if [ "${MAGENTO_THEME_ID}" ]; then
+        "${DOCUMENT_ROOT}"/bin/magento setup:config:set design/theme/theme_id "${VARNISH_HTTP_CACHE_HOST}"
+    fi
+
     if [ "${MAGENTO_MINIFY_STATIC_FILE}" = true ]; then
         echo "${DOCUMENT_ROOT}/bin/magento config:set dev/js/enable_js_bundling 1"
         "${DOCUMENT_ROOT}"/bin/magento config:set dev/js/enable_js_bundling 1
