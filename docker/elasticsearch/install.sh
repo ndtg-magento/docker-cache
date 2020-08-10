@@ -10,4 +10,4 @@ cd $ELASTICSEARCH_DIR && \
   rm -rf elasticsearch-7.8.1-linux-x86_64.tar.gz && \
   ln -s /usr/share/elasticsearch-7.8.1/bin/elasticsearch /usr/local/bin/elasticsearch
 
-chown -R magento:magento /usr/share/elasticsearch-7.8.1
+chmod -R 777 /usr/share/elasticsearch-7.8.1/

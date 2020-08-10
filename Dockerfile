@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libxslt-dev \
     libxml2-dev \
-    unzip curl apt-utils \
+    unzip curl apt-utils netcat \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
@@ -46,20 +46,16 @@ RUN docker-php-ext-install \
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Create a user 'appuser' under 'xyzgroup'
-RUN useradd magento
-RUN addgroup magento magento
-
 COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
 COPY ./docker/ /rootfs
 
-RUN chmod u+x /rootfs/*
+RUN chmod -R u+x /rootfs
 
 WORKDIR ${DOCUMENT_ROOT}
 
 # Install Magento
-#RUN sh /rootfs/magento/install.sh $MAGENTO_VERSION $DOCUMENT_ROOT
-#RUN ln -s ${DOCUMENT_ROOT}/bin/magento /usr/local/bin/magento
+RUN sh /rootfs/magento/install.sh $MAGENTO_VERSION $DOCUMENT_ROOT
+RUN ln -s ${DOCUMENT_ROOT}/bin/magento /usr/local/bin/magento
 
 # Required Setup Plugin
 RUN . /rootfs/mysql/install.sh
