@@ -59,6 +59,10 @@ magento_setup() {
         MAGENTO_SEARCH_ENGINE_PORT=9200
     fi
 
+    if [ -z "${MAGENTO_MODE}" ]; then
+        MAGENTO_MODE=production
+    fi
+
     magento_wait_service_running ${MAGENTO_DATABASE_HOST} ${MAGENTO_DATABASE_PORT}
     note "Database already now."
 

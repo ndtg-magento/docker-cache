@@ -5,9 +5,10 @@ services:
     image: ntuangiang/magento-cache:2.4.0
     environment:
       # Database Config
+      - MAGENTO_MODE=production
       - MAGENTO_DATABASE_HOST=127.0.0.1
       - MAGENTO_DATABASE_USER=magento2
-      - $MAGENTO_DATABASE_DB=magento2
+      - MAGENTO_DATABASE_DB=magento2
       - MAGENTO_DATABASE_PWD=magento2
       # MAGENTO REDIS
       - MAGENTO_CACHE_REDIS_HOST=127.0.0.1

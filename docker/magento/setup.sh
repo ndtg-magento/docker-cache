@@ -22,9 +22,9 @@ magento_setup
 
 if [ "${MAGENTO_EXPORT_DB}" = true ]; then
     note "Dump Database"
-    . /rootfs/magent-dump-db.sh
+    . /rootfs/magento/dump-db.sh
 fi
 
-note "cp ${MAGENTO_ENV} ${MAGENTO_ENV_TEMPLATE}"
-cp "${MAGENTO_ENV}" "${MAGENTO_ENV_TEMPLATE}"
+note "cp ${DOCUMENT_ROOT}/app/etc/env.php ${DOCUMENT_ROOT}/app/etc/env.php.template"
+cp "${DOCUMENT_ROOT}"/app/etc/env.php "${DOCUMENT_ROOT}"/app/etc/env.php.template
 
