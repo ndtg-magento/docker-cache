@@ -11,3 +11,6 @@ cd $ELASTICSEARCH_DIR && \
   ln -s /usr/share/elasticsearch-7.8.1/bin/elasticsearch /usr/local/bin/elasticsearch
 
 chmod -R 777 /usr/share/elasticsearch-7.8.1/
+
+groupadd -g 1000 elasticsearch
+useradd -d /home/elasticsearch -s /bin/bash -u 1000 -g 1000 elasticsearch
