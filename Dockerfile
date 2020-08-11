@@ -46,19 +46,23 @@ RUN docker-php-ext-install \
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+# Prepare Install Magento
+COPY ./docker/magento/auth.json /root/.composer/
 COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
-COPY ./docker/ /rootfs
 
+# Save Cache
+RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=$MAGENTO_VERSION $DOCUMENT_ROOT/cache
+RUN rm -rf $DOCUMENT_ROOT/cache
+
+COPY ./docker/ /rootfs
 RUN chmod -R u+x /rootfs
 
-WORKDIR ${DOCUMENT_ROOT}
-
 # Install Magento
-RUN sh /rootfs/magento/install.sh $MAGENTO_VERSION $DOCUMENT_ROOT
-RUN ln -s ${DOCUMENT_ROOT}/bin/magento /usr/local/bin/magento
+RUN sh /rootfs/magento/symlink.sh $MAGENTO_VERSION $DOCUMENT_ROOT
 
 # Required Setup Plugin
 RUN . /rootfs/mysql/install.sh
 RUN . /rootfs/redis/install.sh
 RUN . /rootfs/elasticsearch/install.sh
 
+WORKDIR ${DOCUMENT_ROOT}

@@ -24,7 +24,7 @@ temp_server_start() {
 
 _main() {
 	# skip setup if they aren't running mysqld or want an option that stops mysqld
-	if [ "$1" = 'mysqld' ] && ! _mysql_want_help "$@"; then
+	if [ "$1" = 'mysqld' ]; then
 		mysql_note "Entrypoint script for MySQL Server ${MARIADB_VERSION} started."
 
     mysql_note "Starting temporary server"
