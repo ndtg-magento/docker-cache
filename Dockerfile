@@ -1,35 +1,34 @@
-FROM php:7.4-fpm-alpine
+FROM php:7.4-fpm
 
 MAINTAINER Nguyen Tuan Giang "https://github.com/ntuangiang"
 
-ENV MAGENTO_VERSION=2.4
-
 ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
+ENV MAGENTO_VERSION=2.4
+
+ENV MARIADB_MAJOR=10.5
+
+ENV MARIADB_VERSION=1:10.5.4+maria~focal
+
 # Install package
-RUN apk add --update --no-cache freetype \
-    libpng \
-    libjpeg \
-    libjpeg \
-    libxslt \
-    libjpeg-turbo \
-    icu-dev \
-    libzip-dev \
+RUN apt-get update && apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
     libpng-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libzip-dev \
+    libgmp-dev \
+    libldap2-dev \
+    libmcrypt-dev \
+    zlib1g-dev \
+    libicu-dev \
     libxslt-dev \
-    freetype-dev \
-    libjpeg-turbo-dev \
-    redis mysql mysql-client vim
+    libxml2-dev \
+    unzip curl apt-utils netcat \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-RUN apk add --no-cache --virtual .phpize-deps $PHPIZE_DEPS
-
-# Install Elasticsearch
-COPY ./docker/elasticsearch /elasticsearch
-RUN chmod u+x /elasticsearch/install.sh
-RUN /elasticsearch/install.sh
-
-RUN docker-php-ext-configure gd \
-    && docker-php-ext-configure intl
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
 # Install PHP package
 RUN docker-php-ext-install -j$(nproc) iconv gd
@@ -44,47 +43,26 @@ RUN docker-php-ext-install \
     xsl \
     sockets
 
-RUN pecl install \
-    redis
-
-RUN docker-php-ext-enable \
-    redis
-
-RUN apk del .phpize-deps \
-    && apk del --no-cache \
-       libpng-dev \
-       libxslt-dev \
-       freetype-dev \
-       libjpeg-turbo-dev \
-    && rm -rf /var/cache/apk/*
-
-# Install Magento
+# Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Save Cache
+# Prepare Install Magento
 COPY ./docker/magento/auth.json /root/.composer/
-RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=${MAGENTO_VERSION} ${DOCUMENT_ROOT}/cache
-RUN rm -rf ${DOCUMENT_ROOT}/cache
-
-# Copy Scripts
-COPY ./docker/rootfs /rootfs
 COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
 
-RUN chmod u+x /rootfs/*
+# Save Cache
+RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=$MAGENTO_VERSION $DOCUMENT_ROOT/cache
+RUN rm -rf $DOCUMENT_ROOT/cache
 
-RUN ln -s /rootfs/magento:setup /usr/local/bin/magento:setup
-RUN ln -s /rootfs/magento:install /usr/local/bin/magento:install
+COPY ./docker/ /rootfs
+RUN chmod -R u+x /rootfs
+
+# Install Magento
+RUN sh /rootfs/magento/symlink.sh $MAGENTO_VERSION $DOCUMENT_ROOT
+
+# Required Setup Plugin
+RUN . /rootfs/mysql/install.sh
+RUN . /rootfs/redis/install.sh
+RUN . /rootfs/elasticsearch/install.sh
 
 WORKDIR ${DOCUMENT_ROOT}
-
-RUN addgroup mysql mysql
-
-# Create a user group 'xyzgroup'
-RUN addgroup -S magento
-
-# Create a user 'appuser' under 'xyzgroup'
-RUN adduser -SD magento magento
-
-RUN chown -R magento:magento ${DOCUMENT_ROOT}/
-
-RUN ln -s ${DOCUMENT_ROOT}/bin/magento /usr/local/bin/magento
