@@ -12,6 +12,8 @@ magento_setup() {
 
     if [ -z "${MAGENTO_DATABASE_HOST}" ]; then
         MAGENTO_DATABASE_HOST=${HOST_DOMAIN}
+    else
+        echo -e "127.0.0.1\t${MAGENTO_DATABASE_HOST}" >> /etc/hosts
     fi
 
     if [ -z "${MAGENTO_BASE_URL}" ]; then
@@ -20,7 +22,7 @@ magento_setup() {
     	  BASE_URL=${MAGENTO_BASE_URL#*//}
         BASE_URL=${BASE_URL%/*}
 
-    	  note -e "127.0.0.1\t${BASE_URL}" >> /etc/hosts
+    	  echo -e "127.0.0.1\t${BASE_URL}" >> /etc/hosts
     fi
 
     if [ -z "${MAGENTO_DATABASE_USER}" ]; then
@@ -53,6 +55,8 @@ magento_setup() {
 
     if [ -z "${MAGENTO_SEARCH_ENGINE_HOST}" ]; then
         MAGENTO_SEARCH_ENGINE_HOST="127.0.0.1"
+    else
+        echo -e "127.0.0.1\t${MAGENTO_SEARCH_ENGINE_HOST}" >> /etc/hosts
     fi
 
     if [ -z "${MAGENTO_SEARCH_ENGINE_PORT}" ]; then
@@ -148,6 +152,8 @@ magento_setup_cache() {
 magento_setup_cache_redis() {
     if [ "${MAGENTO_CACHE_REDIS_HOST}" ]; then
         note "Setting redis cache..."
+
+        echo -e "127.0.0.1\t${MAGENTO_CACHE_REDIS_HOST}" >> /etc/hosts
 
         if [ -z "${MAGENTO_CACHE_REDIS_PORT}" ]; then
             MAGENTO_CACHE_REDIS_PORT=6379
