@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+  m2php:
+    image: ntuangiang/magento-cache:2.4.0
+    environment:
+      # Database Config
+      - MAGENTO_MODE=production
+      - MAGENTO_DATABASE_HOST=127.0.0.1
+      - MAGENTO_DATABASE_USER=magento2
+      - MAGENTO_DATABASE_DB=magento2
+      - MAGENTO_DATABASE_PWD=magento2
+      # MAGENTO REDIS
+      - MAGENTO_CACHE_REDIS_HOST=127.0.0.1
+      # MAGENTO VARNISH
+      - MAGENTO_HTTP_CACHE_HOSTS=m2nginx:80
+      # ELASTICSEARCH
+      - MAGENTO_SEARCH_ENGINE_HOST=127.0.0.1
+      # Magento
+      - MAGENTO_ADMIN_PWD=admin123
+      - MAGENTO_EXPORT_DB=true
+      - MAGENTO_BASE_URL=http://magento2.dev.local
+      - MAGENTO_BASE_URL_SECURE=https://magento2.dev.local
+    volumes:
+      - ./data:/data
+
