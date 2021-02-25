@@ -15,7 +15,7 @@ magento_setup() {
     then
         MAGENTO_DATABASE_HOST=${HOST_DOMAIN}
     else
-        echo -e "127.0.0.1\t${MAGENTO_DATABASE_HOST}" >> /etc/hosts
+        echo "127.0.0.1\t${MAGENTO_DATABASE_HOST}" >> /etc/hosts
     fi
 
     if [ -z "${MAGENTO_BASE_URL}" ]
@@ -25,7 +25,7 @@ magento_setup() {
     	  BASE_URL=${MAGENTO_BASE_URL#*//}
         BASE_URL=${BASE_URL%/*}
 
-    	  echo -e "127.0.0.1\t${BASE_URL}" >> /etc/hosts
+    	  echo "127.0.0.1\t${BASE_URL}" >> /etc/hosts
     fi
 
     if [ -z "${MAGENTO_DATABASE_USER}" ]
@@ -67,7 +67,7 @@ magento_setup() {
     then
         MAGENTO_SEARCH_ENGINE_HOST="127.0.0.1"
     else
-        echo -e "127.0.0.1\t${MAGENTO_SEARCH_ENGINE_HOST}" >> /etc/hosts
+        echo "127.0.0.1\t${MAGENTO_SEARCH_ENGINE_HOST}" >> /etc/hosts
     fi
 
     if [ -z "${MAGENTO_SEARCH_ENGINE_PORT}" ]
@@ -79,6 +79,8 @@ magento_setup() {
     then
         MAGENTO_MODE=production
     fi
+
+    cat /etc/hosts
 
     magento_wait_service_running ${MAGENTO_DATABASE_HOST} ${MAGENTO_DATABASE_PORT}
     note "Database already now."
@@ -167,7 +169,7 @@ magento_setup_cache_redis() {
     then
         note "Setting redis cache..."
 
-        echo -e "127.0.0.1\t${MAGENTO_CACHE_REDIS_HOST}" >> /etc/hosts
+        echo "127.0.0.1\t${MAGENTO_CACHE_REDIS_HOST}" >> /etc/hosts
 
         if [ -z "${MAGENTO_CACHE_REDIS_PORT}" ]
         then
@@ -283,8 +285,8 @@ magento_setup_access_permission() {
 
 # Waiting Service
 magento_wait_service_running() {
-  local HOST=$1
-  local PORT=$2
+  HOST=$1
+  PORT=$2
 
   until nc -z -v -w30 ${HOST} ${PORT}
   do

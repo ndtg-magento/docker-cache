@@ -8,9 +8,9 @@ set -e
 . /rootfs/magento/setup/production.sh
 
 # Import Service
-. /rootfs/mysql/entrypoint.sh mysqld &
+. /rootfs/mysql/entrypoint.sh &
 . /rootfs/elasticsearch/entrypoint.sh &
-. /rootfs/redis/entrypoint.sh redis-server &
+. /rootfs/redis/entrypoint.sh &
 
 note "[i] Sleeping 2 sec before setup."
 sleep 2
