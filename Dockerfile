@@ -4,7 +4,7 @@ MAINTAINER Nguyen Tuan Giang "https://github.com/ntuangiang"
 
 ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
-ENV MAGENTO_VERSION=2.4
+ENV MAGENTO_VERSION=2.4.2
 
 ENV MARIADB_MAJOR=10.5
 

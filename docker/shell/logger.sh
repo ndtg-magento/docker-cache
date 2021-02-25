@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
 # logging functions
 log() {
-	local type="$1"; shift
+	type="$1"; shift
 	printf '%s [%s] [Magento Setup]: %s\n' "$(date --rfc-3339=seconds)" "$type" "$*"
 }
 note() {

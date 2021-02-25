@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 # Import Logger
@@ -20,7 +20,8 @@ note "${DOCUMENT_ROOT}/bin/magento -V"
 
 magento_setup
 
-if [ "${MAGENTO_EXPORT_DB}" = true ]; then
+if [ "${MAGENTO_EXPORT_DB}" = true ]
+then
     note "Dump Database"
     . /rootfs/magento/dump-db.sh
 fi
