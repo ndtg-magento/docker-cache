@@ -54,19 +54,19 @@ COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
 RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=$MAGENTO_VERSION $DOCUMENT_ROOT/cache
 RUN rm -rf $DOCUMENT_ROOT/cache
 
-COPY ./docker/mysql/install.sh /rootfs/mysql/install.sh
-COPY ./docker/redis/install.sh /rootfs/redis/install.sh
-COPY ./docker/elasticsearch/install.sh /rootfs/elasticsearch/install.sh
+# COPY ./docker/mysql/install.sh /rootfs/mysql/install.sh
+# COPY ./docker/redis/install.sh /rootfs/redis/install.sh
+# COPY ./docker/elasticsearch/install.sh /rootfs/elasticsearch/install.sh
 
 # Required Setup Plugin
-RUN . /rootfs/mysql/install.sh
-RUN . /rootfs/redis/install.sh
-RUN . /rootfs/elasticsearch/install.sh
+# RUN . /rootfs/mysql/install.sh
+# RUN . /rootfs/redis/install.sh
+# RUN . /rootfs/elasticsearch/install.sh
 
-COPY ./docker/ /rootfs
-RUN chmod -R u+x /rootfs
+# COPY ./docker/ /rootfs
+# RUN chmod -R u+x /rootfs
 
 # Install Magento
-RUN sh /rootfs/magento/symlink.sh $MAGENTO_VERSION $DOCUMENT_ROOT
+# RUN sh /rootfs/magento/symlink.sh $MAGENTO_VERSION $DOCUMENT_ROOT
 
 WORKDIR ${DOCUMENT_ROOT}
