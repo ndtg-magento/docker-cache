@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libxslt-dev \
     libxml2-dev \
-    unzip curl apt-utils netcat \
+    unzip curl apt-utils netcat git \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
