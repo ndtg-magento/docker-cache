@@ -1,11 +1,13 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-if [ -f "${DOCUMENT_ROOT}"/composer.json ]; then
+if [ -f "${DOCUMENT_ROOT}"/composer.json ]
+then
     echo "cd ${DOCUMENT_ROOT} && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader 2>&1"
     cd "${DOCUMENT_ROOT}" && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader 2>&1
 
-    if [ "${MAGENTO_UPDATE_PACKAGE}" = true ]; then
+    if [ "${MAGENTO_UPDATE_PACKAGE}" = true ]
+    then
         echo "composer update --no-dev --prefer-dist --no-interaction --optimize-autoloader 2>&1"
         composer update --no-dev --prefer-dist --no-interaction --optimize-autoloader 2>&1
     fi

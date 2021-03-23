@@ -1,17 +1,20 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 HOST_DOMAIN="127.0.0.1"
 
-if [ -z "${MAGENTO_DATABASE_PORT}" ]; then
+if [ -z "${MAGENTO_DATABASE_PORT}" ]
+then
     MAGENTO_DATABASE_PORT=3306
 fi
 
-if [ -z "${MAGENTO_DATABASE_HOST}" ]; then
+if [ -z "${MAGENTO_DATABASE_HOST}" ]
+then
     MAGENTO_DATABASE_HOST=${HOST_DOMAIN}
 fi
 
-if [ -z "${MAGENTO_DATABASE_USER}" ]; then
+if [ -z "${MAGENTO_DATABASE_USER}" ]
+then
     MAGENTO_DATABASE_USER="root"
 fi
 

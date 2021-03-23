@@ -4,7 +4,7 @@ MAINTAINER Nguyen Tuan Giang "https://github.com/ntuangiang"
 
 ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
-ENV MAGENTO_VERSION=2.4
+ENV MAGENTO_VERSION=2.4.2
 
 ENV MARIADB_MAJOR=10.5
 
@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libxslt-dev \
     libxml2-dev \
-    unzip curl apt-utils netcat git \
+    unzip curl apt-utils git netcat \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
@@ -53,16 +53,5 @@ COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
 # Save Cache
 RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=$MAGENTO_VERSION $DOCUMENT_ROOT/cache
 RUN rm -rf $DOCUMENT_ROOT/cache
-
-COPY ./docker/ /rootfs
-RUN chmod -R u+x /rootfs
-
-# Install Magento
-RUN sh /rootfs/magento/symlink.sh $MAGENTO_VERSION $DOCUMENT_ROOT
-
-# Required Setup Plugin
-RUN . /rootfs/mysql/install.sh
-RUN . /rootfs/redis/install.sh
-RUN . /rootfs/elasticsearch/install.sh
 
 WORKDIR ${DOCUMENT_ROOT}

@@ -1,5 +1,5 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 echo "Starting redis ..."
-exec "$@"
+exec "redis-server"

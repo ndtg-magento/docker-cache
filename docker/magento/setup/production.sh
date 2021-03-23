@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
@@ -6,66 +6,81 @@ set -e
 magento_setup() {
     HOST_DOMAIN="127.0.0.1"
 
-    if [ -z "${MAGENTO_DATABASE_PORT}" ]; then
+    if [ -z "${MAGENTO_DATABASE_PORT}" ]
+    then
         MAGENTO_DATABASE_PORT=3306
     fi
 
-    if [ -z "${MAGENTO_DATABASE_HOST}" ]; then
+    if [ -z "${MAGENTO_DATABASE_HOST}" ]
+    then
         MAGENTO_DATABASE_HOST=${HOST_DOMAIN}
     else
-        echo -e "127.0.0.1\t${MAGENTO_DATABASE_HOST}" >> /etc/hosts
+        echo "127.0.0.1\t${MAGENTO_DATABASE_HOST}" >> /etc/hosts
     fi
 
-    if [ -z "${MAGENTO_BASE_URL}" ]; then
+    if [ -z "${MAGENTO_BASE_URL}" ]
+    then
         MAGENTO_BASE_URL="http://127.0.0.1"
     else
     	  BASE_URL=${MAGENTO_BASE_URL#*//}
         BASE_URL=${BASE_URL%/*}
 
-    	  echo -e "127.0.0.1\t${BASE_URL}" >> /etc/hosts
+    	  echo "127.0.0.1\t${BASE_URL}" >> /etc/hosts
     fi
 
-    if [ -z "${MAGENTO_DATABASE_USER}" ]; then
+    if [ -z "${MAGENTO_DATABASE_USER}" ]
+    then
         MAGENTO_DATABASE_USER="root"
     fi
 
-    if [ -z "${MAGENTO_ADMIN_USER}" ]; then
+    if [ -z "${MAGENTO_ADMIN_USER}" ]
+    then
         MAGENTO_ADMIN_USER="admin"
     fi
 
-    if [ -z "${MAGENTO_ADMIN_PWD}" ]; then
+    if [ -z "${MAGENTO_ADMIN_PWD}" ]
+    then
         MAGENTO_ADMIN_PWD="admin123"
     fi
 
-    if [ -z "${MAGENTO_ADMIN_EMAIL}" ]; then
+    if [ -z "${MAGENTO_ADMIN_EMAIL}" ]
+    then
         MAGENTO_ADMIN_EMAIL="admin@example.com"
     fi
 
-    if [ -z "${MAGENTO_ADMIN_FIRST_NAME}" ]; then
+    if [ -z "${MAGENTO_ADMIN_FIRST_NAME}" ]
+    then
         MAGENTO_ADMIN_FIRST_NAME="Admin"
     fi
 
-    if [ -z "${MAGENTO_ADMIN_LAST_NAME}" ]; then
+    if [ -z "${MAGENTO_ADMIN_LAST_NAME}" ]
+    then
         MAGENTO_ADMIN_LAST_NAME="User"
     fi
 
-    if [ -z "${MAGENTO_SEARCH_ENGINE}" ]; then
+    if [ -z "${MAGENTO_SEARCH_ENGINE}" ]
+    then
         MAGENTO_SEARCH_ENGINE="elasticsearch7"
     fi
 
-    if [ -z "${MAGENTO_SEARCH_ENGINE_HOST}" ]; then
+    if [ -z "${MAGENTO_SEARCH_ENGINE_HOST}" ]
+    then
         MAGENTO_SEARCH_ENGINE_HOST="127.0.0.1"
     else
-        echo -e "127.0.0.1\t${MAGENTO_SEARCH_ENGINE_HOST}" >> /etc/hosts
+        echo "127.0.0.1\t${MAGENTO_SEARCH_ENGINE_HOST}" >> /etc/hosts
     fi
 
-    if [ -z "${MAGENTO_SEARCH_ENGINE_PORT}" ]; then
+    if [ -z "${MAGENTO_SEARCH_ENGINE_PORT}" ]
+    then
         MAGENTO_SEARCH_ENGINE_PORT=9200
     fi
 
-    if [ -z "${MAGENTO_MODE}" ]; then
+    if [ -z "${MAGENTO_MODE}" ]
+    then
         MAGENTO_MODE=production
     fi
+
+    cat /etc/hosts
 
     magento_wait_service_running ${MAGENTO_DATABASE_HOST} ${MAGENTO_DATABASE_PORT}
     note "Database already now."
@@ -150,12 +165,14 @@ magento_setup_cache() {
 
 # Magento Setup Redis Cache
 magento_setup_cache_redis() {
-    if [ "${MAGENTO_CACHE_REDIS_HOST}" ]; then
+    if [ "${MAGENTO_CACHE_REDIS_HOST}" ]
+    then
         note "Setting redis cache..."
 
-        echo -e "127.0.0.1\t${MAGENTO_CACHE_REDIS_HOST}" >> /etc/hosts
+        echo "127.0.0.1\t${MAGENTO_CACHE_REDIS_HOST}" >> /etc/hosts
 
-        if [ -z "${MAGENTO_CACHE_REDIS_PORT}" ]; then
+        if [ -z "${MAGENTO_CACHE_REDIS_PORT}" ]
+        then
             MAGENTO_CACHE_REDIS_PORT=6379
         fi
 
@@ -185,13 +202,15 @@ magento_setup_cache_redis() {
 
 # Setup Varnish Cache
 magento_setup_cache_varnish() {
-    if [ "${VARNISH_CACHE_ENABLED}" = true ]; then
+    if [ "${VARNISH_CACHE_ENABLED}" = true ]
+    then
         note "Setting varnish cache..."
 
         note "${DOCUMENT_ROOT}/bin/magento config:set --scope=default --scope-code=0 system/full_page_cache/caching_application 2"
         "${DOCUMENT_ROOT}"/bin/magento config:set --scope=default --scope-code=0 system/full_page_cache/caching_application 2
 
-        if [ "${VARNISH_HTTP_CACHE_HOST}" ]; then
+        if [ "${VARNISH_HTTP_CACHE_HOST}" ]
+        then
             note "${DOCUMENT_ROOT}/bin/magento setup:config:set --http-cache-hosts=${VARNISH_HTTP_CACHE_HOST}"
             yes | "${DOCUMENT_ROOT}"/bin/magento setup:config:set --http-cache-hosts="${VARNISH_HTTP_CACHE_HOST}"
         fi
@@ -211,15 +230,18 @@ magento_setup_static_file() {
 
 # Save Static Config
 magento_setup_minify_static() {
-    if [ -z "${MAGENTO_MINIFY_STATIC_FILE}" ]; then
+    if [ -z "${MAGENTO_MINIFY_STATIC_FILE}" ]
+    then
         MAGENTO_MINIFY_STATIC_FILE=true
     fi
 
-    if [ "${MAGENTO_THEME_ID}" ]; then
+    if [ "${MAGENTO_THEME_ID}" ]
+    then
         "${DOCUMENT_ROOT}"/bin/magento setup:config:set design/theme/theme_id "${VARNISH_HTTP_CACHE_HOST}"
     fi
 
-    if [ "${MAGENTO_MINIFY_STATIC_FILE}" = true ]; then
+    if [ "${MAGENTO_MINIFY_STATIC_FILE}" = true ]
+    then
         note "${DOCUMENT_ROOT}/bin/magento config:set dev/js/enable_js_bundling 1"
         "${DOCUMENT_ROOT}"/bin/magento config:set dev/js/enable_js_bundling 1
 
@@ -263,8 +285,8 @@ magento_setup_access_permission() {
 
 # Waiting Service
 magento_wait_service_running() {
-  local HOST=$1
-  local PORT=$2
+  HOST=$1
+  PORT=$2
 
   until nc -z -v -w30 ${HOST} ${PORT}
   do
