@@ -6,9 +6,9 @@ ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
 ENV MAGENTO_VERSION=2.4.2
 
-ENV MARIADB_MAJOR=10.5
+ENV MARIADB_MAJOR=10.4
 
-ENV MARIADB_VERSION=1:10.5.4+maria~focal
+ENV MARIADB_VERSION=1:10.4.18+maria~focal
 
 # Install package
 RUN apt-get update && apt-get install -y \
@@ -47,8 +47,8 @@ RUN docker-php-ext-install \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Prepare Install Magento
-COPY ./docker/magento/auth.json /root/.composer/
 COPY ./docker/php/php.ini "${PHP_INI_DIR}/php.ini"
+COPY ./docker/magento/auth.json /root/.composer/
 
 # Save Cache
 RUN composer create-project --repository=https://repo.magento.com/ magento/project-community-edition=$MAGENTO_VERSION $DOCUMENT_ROOT/cache
