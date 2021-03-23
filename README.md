@@ -7,7 +7,7 @@
 [https://devdocs.magento.com](https://devdocs.magento.com) Meet the small business, mid-sized business, and enterprise-level companies who are benefiting from the power and flexibility of Magento on their web stores. We built the eCommerce platform, so you can build your business.
 
 ## Docker Repository
-[ntuangiang/magento](https://hub.docker.com/r/ntuangiang/magento) 
+[ntuangiang/magento-cached](https://hub.docker.com/r/ntuangiang/magento-cached) 
 ## Usage
 ## Developer
 - Write a `Dockerfile` file.
