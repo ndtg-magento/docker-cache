@@ -4,6 +4,8 @@ MAINTAINER Nguyen Tuan Giang "https://github.com/ntuangiang"
 
 ENV DOCUMENT_ROOT=/usr/share/nginx/html
 
+ENV ZIP_ROOT=/usr/share/nginx
+
 ENV MAGENTO_VERSION=2.4.2
 
 ENV MARIADB_MAJOR=10.4
@@ -25,7 +27,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libxslt-dev \
     libxml2-dev \
-    unzip curl apt-utils git netcat \
+    zip unzip curl apt-utils git netcat \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
