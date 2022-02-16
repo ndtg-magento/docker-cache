@@ -7,135 +7,64 @@
 [https://devdocs.magento.com](https://devdocs.magento.com) Meet the small business, mid-sized business, and enterprise-level companies who are benefiting from the power and flexibility of Magento on their web stores. We built the eCommerce platform, so you can build your business.
 
 ## Docker Repository
-[ntuangiang/magento-system](https://hub.docker.com/r/ntuangiang/magento-system) 
+[ntuangiang/magento-cache-system](https://hub.docker.com/r/ntuangiang/magento-system) 
 
 ## Usage
 ### Developer
 - Write a `Dockerfile` file.
 
 ```Dockerfile
-FROM ntuangiang/magento-system:2.4.3-p1 as magento-build
+FROM ntuangiang/magento-cache-system:2.4.3-p1 as magento-builder
 
-ENV MAGENTO_MODE=production
+COPY ./composer.* ${DOCUMENT_ROOT}/
 
-ENV MAGENTO_DATABASE_HOST=127.0.0.1
-ENV MAGENTO_DATABASE_USER=magento2
-ENV MAGENTO_DATABASE_PWD=magento2
-ENV MAGENTO_DATABASE_DB=magento2
-ENV MAGENTO_ADMIN_PWD=magento2
-ENV MAGENTO_CACHE_REDIS_HOST=127.0.0.1
-ENV MAGENTO_BASE_URL=http://magento2.dev.traefik
-ENV MAGENTO_BASE_URL_SECURE=https://magento2.dev.traefik
+RUN composer update && composer install --no-ansi --no-interaction --optimize-autoloader --no-dev --prefer-dist 2>&1
 
-COPY --chown=magento:magento ./composer.* ${DOCUMENT_ROOT}/
+COPY ./environment /etc/
+COPY ./auth.json "${DOCUMENT_ROOT}"/var/composer_home/composer.json
+COPY ./app/design "${DOCUMENT_ROOT}"/app/design
+COPY ./app/code "${DOCUMENT_ROOT}"/app/code
 
-RUN magento:install
+RUN . /etc/environment && php -dmemory_limit=-1 bin/magento setup:install \
+        --base-url-secure=$MAGENTO_BASE_URL_SECURE \
+        --base-url=$MAGENTO_BASE_URL \
+        --db-host="${MAGENTO_DATABASE_HOST}:${MAGENTO_DATABASE_PORT}" \
+        --db-name=$MAGENTO_DATABASE_DB \
+        --db-user=$MAGENTO_DATABASE_USER \
+        --db-password=$MAGENTO_DATABASE_PWD \
+        --search-engine=$MAGENTO_SEARCH_ENGINE \
+        --elasticsearch-host=$MAGENTO_SEARCH_ENGINE_HOST \
+        --elasticsearch-port=$MAGENTO_SEARCH_ENGINE_PORT \
+        --admin-firstname=$MAGENTO_ADMIN_FIRSTNAME \
+        --admin-lastname=$MAGENTO_ADMIN_LASTNAME \
+        --admin-email=$MAGENTO_ADMIN_EMAIL \
+        --admin-user=$MAGENTO_ADMIN_USER \
+        --admin-password=$MAGENTO_ADMIN_PWD \
+        --language=vi_VN --currency=VND --timezone=Asia/Ho_Chi_Minh
 
-COPY --chown=magento:magento ./app/ ${DOCUMENT_ROOT}/app/
+RUN . /etc/environment && php -dmemory_limit=-1 bin/magento deploy:mode:set $MAGENTO_MODE --skip-compilation && \
+    php -dmemory_limit=-1 bin/magento config:set dev/js/enable_js_bundling 1 && \
+    php -dmemory_limit=-1 bin/magento config:set dev/js/minify_files 1 && \
+    php -dmemory_limit=-1 bin/magento config:set dev/css/minify_files 1 && \
+    php -dmemory_limit=-1 bin/magento config:set dev/css/merge_css_files 1 && \
+    php -dmemory_limit=-1 bin/magento config:set dev/template/minify_html 1 && \
+    php -dmemory_limit=-1 bin/magento config:set dev/static/sign 1 && \
+    php -dmemory_limit=-1 bin/magento setup:di:compile --no-ansi
 
-RUN magento:setup
+RUN php -dmemory_limit=-1 bin/magento setup:static-content:deploy && \
+    php -dmemory_limit=-1 bin/magento cache:flush
 
-FROM ntuangiang/magento-system:2.4.3-p1 as magento-php-fpm
+COPY ./app/etc/env.php.template "${DOCUMENT_ROOT}"/app/etc/env.php
 
-COPY --from=magento-build --chown=magento:magento \
-    ${DOCUMENT_ROOT}/ \
-    ${DOCUMENT_ROOT}/
-```
-- Write `docker-compose.yml` to start services.
+RUN mkdir -p "${DOCUMENT_ROOT}"/var/cache "${DOCUMENT_ROOT}"/var/report "${DOCUMENT_ROOT}"/var/tmp "${DOCUMENT_ROOT}"/app/code
 
-```yml
-version: '3.7'
+RUN find "${DOCUMENT_ROOT}"/var "${DOCUMENT_ROOT}"/generated \( -type d -or -type f \) -exec chmod 775 {} +;
 
-services:
-  m2varnish:
-    image: ntuangiang/magento-varnish
-    environment:
-      - VARNISH_BACKEND_PORT=80
-      - VARNISH_PURGE_HOST=m2nginx
-      - VARNISH_BACKEND_HOST=m2nginx
-      - VARNISH_HEALTH_CHECK_FILE=/health_check.php
-    labels:
-      - traefik.port=80
-      - traefik.enable=true
-      - traefik.docker.network=traefik_proxy
-      - traefik.frontend.entryPoints=https,http
-      - traefik.frontend.rule=Host:magento2.sql.dev.traefik;PathPrefix:/
-    networks:
-      - traefik
+RUN chmod o+rwx "${DOCUMENT_ROOT}"/app/etc/env.php
 
-  m2nginx:
-    image: ntuangiang/magento-nginx:build
-    volumes:
-      - ./pub/media:/usr/share/nginx/html/pub/media
-    environment:
-      - NGINX_BACKEND_HOST=m2php
-      - MAGE_MODE=production
-    networks:
-      - backend
-      - traefik
-
-  m2php:
-    image: ntuangiang/magento-php:build
-    environment:
-      # Database Config
-      - MAGENTO_DATABASE_HOST=m2db
-      - MAGENTO_DATABASE_PORT=3306
-      - MAGENTO_DATABASE_USER=root
-      - MAGENTO_DATABASE_PWD=root
-      - MAGENTO_DATABASE_DB=magento2.sql
-      - MAGENTO_MINIFY_STATIC_FILE=false
-      # MAGENTO REDIS
-      - MAGENTO_CACHE_REDIS_HOST=m2redis
-      - MAGENTO_CACHE_REDIS_PORT=6379
-      # MAGENTO VARNISH
-      - MAGENTO_HTTP_CACHE_HOSTS=m2nginx:80
-    volumes:
-      - ./pub/media:/usr/share/nginx/html/pub/media
-    networks:
-      - backend
-
-  m2db:
-    image: mysql
-    command: --default-authentication-plugin=mysql_native_password
-    volumes:
-      - ./data/db:/var/lib/mysql
-    ports:
-      - '2336:3306'
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=magento2.sql
-    networks:
-      - backend
-
-  m2redis:
-    image: redis:alpine
-    networks:
-      - backend
-
-networks:
-  backend:
-  traefik:
-    external:
-      name: traefik_proxy
+RUN zip -qr "${ZIP_ROOT}/magento.zip" "${DOCUMENT_ROOT}"
 ```
 
-- Build Images
-
-```shell
-docker build -t ntuangiang/magento-php:build . --target=magento-php-fpm
-docker build -t ntuangiang/magento-nginx:build . --target=magento-nginx
-```
-
-- Start Services
-
-```yml
-docker-compose up 
-```
- - Or
- 
- ```yml
- docker-compose up -d 
- ```
 ## LICENSE
 
 MIT License
